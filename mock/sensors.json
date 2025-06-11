@@ -1,0 +1,30 @@
+[
+  {
+    "id": "1",
+    "name": "Sensor de Pressão",
+    "value": 72,
+    "status": "OK",
+    "history": [70, 68, 75, 72]
+  },
+  {
+    "id": "2",
+    "name": "Sensor de Fluxo",
+    "value": 15,
+    "status": "Alerta",
+    "history": [14, 18, 20, 15]
+  },
+  {
+    "id": "3",
+    "name": "Sensor de Posição de Cilindro",
+    "value": 1,
+    "status": "OK",
+    "history": [0, 1, 1, 1]
+  },
+  {
+    "id": "4",
+    "name": "Sensor de Vazamento",
+    "value": 0,
+    "status": "OK",
+    "history": [0, 0, 1, 0]
+  }
+]
