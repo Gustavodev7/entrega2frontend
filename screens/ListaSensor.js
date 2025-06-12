@@ -1,42 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet, Button } from 'react-native';
-import Sensor from '../components/Sensor';
-import originalData from '../mock/sensors.json';
+import { View, FlatList, StyleSheet, Button, Text, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function ListaSensor({ navigation }) {
   const [sensors, setSensors] = useState([]);
 
   useEffect(() => {
-    // Função que simula novos valores a cada intervalo
-    function refreshSensors() {
-      const updated = originalData.map(s => {
-        // variação aleatória no value
-        const newValue = parseFloat(
-          (s.value + (Math.random() * 4 - 2)).toFixed(1)
-        );
-        // simula mudança de status com pequena probabilidade
-        const newStatus =
-          newValue > s.value + 1
-            ? 'Alerta'
-            : newValue < s.value - 1
-            ? 'Alerta'
-            : 'OK';
+    async function carregarSensores() {
+      try {
+        const apiUrl = await AsyncStorage.getItem('apiUrl');
+        if (!apiUrl) return;
 
-        return {
-          ...s,
-          value: newValue,
-          status: newStatus,
-        };
-      });
-      setSensors(updated);
+        const res = await axios.get(apiUrl);
+        setSensors(res.data);
+      } catch (error) {
+        console.error("Erro ao buscar sensores:", error);
+      }
     }
 
-   
-    refreshSensors();
-    
-    const intervalId = setInterval(refreshSensors, 10000);
-
-    
+    carregarSensores();
+    const intervalId = setInterval(carregarSensores, 10000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -49,18 +33,30 @@ export default function ListaSensor({ navigation }) {
           color="#00838f"
         />
       </View>
-      <FlatList
-        data={sensors}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <Sensor
-            item={item}
-            onPress={() =>
-              navigation.navigate('SensorDetail', { sensor: item })
-            }
-          />
-        )}
-      />
+      {sensors.length === 0 ? (
+        <Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhum sensor disponível</Text>
+      ) : (
+        <FlatList
+          data={sensors}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => {
+            const status = item.readingValue > 50 ? 'ALERTA' : 'OK';
+            const statusColor = status === 'OK' ? '#2e7d32' : '#c62828';
+
+            return (
+              <TouchableOpacity
+                style={styles.sensorContainer}
+                onPress={() => navigation.navigate('SensorDetail', { sensor: item })}
+              >
+                <Text style={styles.sensorText}>Nome: {item.sensorId}</Text>
+                <Text style={styles.sensorText}>Valor: {item.readingValue}</Text>
+                <Text style={styles.sensorText}>Horário: {new Date(item.timestamp).toLocaleString()}</Text>
+                <Text style={[styles.sensorText, { color: statusColor }]}>Status: {status}</Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -70,5 +66,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e0f7fa',
     padding: 16,
+  },
+  sensorContainer: {
+    backgroundColor: '#ffffff',
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 8,
+    borderColor: '#00838f',
+    borderWidth: 1,
+  },
+  sensorText: {
+    fontSize: 16,
+    marginBottom: 4,
   },
 });

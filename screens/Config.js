@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -77,4 +77,9 @@ const styles = StyleSheet.create({
   }
 });
 
+/**
+ * Integração com a API da Sprint 2:
+ * - Esta tela permite que o usuário digite e salve a URL da API (ex: http://192.168.0.102:8080/api/readings).
+ * - Essa URL é armazenada localmente usando AsyncStorage com a chave 'apiUrl'.
+ */
 //como integrar api p sprint 2 **
